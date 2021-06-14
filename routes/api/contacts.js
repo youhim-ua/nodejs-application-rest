@@ -39,7 +39,7 @@ router.get('/:contactId', async (req, res, next) => {
     const { contactId } = req.params
     const data = await getContactById(contactId)
     if (!data) {
-      res.status(404).json({ message: 'Not found' })
+      return res.status(404).json({ message: 'Not found' })
     }
     res.status(200).json({ data })
   } catch (error) {
@@ -67,7 +67,7 @@ router.delete('/:contactId', async (req, res, next) => {
     const { contactId } = req.params
     const data = await removeContact(contactId)
     if (!data) {
-      res.status(404).json({ message: 'Not found' })
+      return res.status(404).json({ message: 'Not found' })
     }
     res.status(200).json({ message: 'Contact deleted' })
   } catch (error) {
@@ -86,7 +86,7 @@ router.put('/:contactId', async (req, res, next) => {
     const { contactId } = req.params
     const data = await updateContact(contactId, req.body)
     if (!data) {
-      res.status(404).json({ message: 'Not found' })
+      return res.status(404).json({ message: 'Not found' })
     }
     res.status(200).json(data)
   } catch (error) {
