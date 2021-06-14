@@ -1,3 +1,4 @@
 node_modules
-.ENV
-package.json
+
+.env
+
