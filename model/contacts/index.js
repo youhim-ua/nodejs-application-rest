@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const { Schema, SchemaTypes } = mongoose
 
-const contact = new Schema(
+const contactSchema = new Schema(
   {
     name: {
       type: String,
@@ -17,11 +17,15 @@ const contact = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: 'User',
+    }
   },
   { versionKey: false, timestamps: true }
 )
 
-const Contact = mongoose.model('Contact', contact)
+const Contact = mongoose.model('Contact', contactSchema)
 
 module.exports = {
   Contact

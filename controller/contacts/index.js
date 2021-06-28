@@ -20,6 +20,7 @@ const getContactByIdController = async (req, res, next) => {
   try {
     const { contactId } = req.params
     const result = await getContactById(contactId)
+    if (!result) return res.status(404).json({ result: 'not found' })
     return res.status(200).json({ result })
   } catch (error) {
     next()
