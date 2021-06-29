@@ -1,7 +1,8 @@
 const {
   addUser,
   getUserByEmail,
-  getUserById
+  getUserById,
+  updateSubscription
 } = require('../../services/users')
 const {
   login,
@@ -53,7 +54,20 @@ const getCurrentUserController = async (req, res, next) => {
 
     if (currentUser) {
       const { email, subscription } = currentUser
-      res.status(200).json({ email, subscription })
+      return res.status(200).json({ email, subscription })
+    }
+  } catch (error) {
+    next()
+  }
+}
+
+const changeCurrentUserSubscription = async (req, res, next) => {
+  try {
+    const currentUser = await getUserById(req.user.id)
+    const { subscription } = req.body
+    if (currentUser) {
+      const result = await updateSubscription(req.user.id, subscription)
+      return res.status(200).json({ message: 'subscription changed', result: result.subscription })
     }
   } catch (error) {
     next()
@@ -64,5 +78,6 @@ module.exports = {
   registrationUserController,
   loginUserController,
   logoutUserController,
-  getCurrentUserController
+  getCurrentUserController,
+  changeCurrentUserSubscription
 }

@@ -10,9 +10,13 @@ const updateToken = async (id, token) => {
   await User.updateOne({ _id: id }, { token })
 }
 
+const updateSubscription = async (id, subscription) =>
+  await User.findByIdAndUpdate(id, { $set: { subscription } }, { new: true })
+
 module.exports = {
   addUser,
   getUserByEmail,
   getUserById,
   updateToken,
+  updateSubscription
 }

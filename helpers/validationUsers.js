@@ -25,6 +25,25 @@ const validationUser = async (req, res, next) => {
   }
 }
 
+const schemaUpdateSubscriptionUser = Joi.object({
+  subscription: Joi.string().valid('starter', 'pro', 'business').required()
+})
+
+const validationUpdateSubscriptionUser = async (req, res, next) => {
+  try {
+    const validationResult = schemaUpdateSubscriptionUser.validate(req.body)
+    if (validationResult.error) {
+      res.status(400).json(
+        { message: 'unexpected value, must be one of: \'starter\', \'pro\', \'business\'' }
+      )
+    }
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
-  validationUser
+  validationUser,
+  validationUpdateSubscriptionUser
 }

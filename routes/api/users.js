@@ -5,15 +5,20 @@ const {
   registrationUserController,
   loginUserController,
   logoutUserController,
-  getCurrentUserController
+  getCurrentUserController,
+  changeCurrentUserSubscription
 } = require('../../controller/users')
 
-const { validationUser } = require('../../helpers/validationUsers')
+const {
+  validationUser,
+  validationUpdateSubscriptionUser
+} = require('../../helpers/validationUsers')
 const { protect } = require('../../helpers/protect')
 
 router.post('/users/signup', validationUser, registrationUserController)
 router.post('/users/login', validationUser, loginUserController)
 router.post('/users/logout', protect, logoutUserController)
 router.get('/users/current', protect, getCurrentUserController)
+router.patch('/users/current', [protect, validationUpdateSubscriptionUser], changeCurrentUserSubscription)
 
 module.exports = router
