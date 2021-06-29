@@ -3,7 +3,7 @@ const router = express.Router()
 const {
   validationNewContact,
   validationUpdateContact,
-  validationUpdateFavoriteContact
+  validationUpdateFavoriteContact,
 } = require('../../helpers/validationContacts.js')
 
 const {

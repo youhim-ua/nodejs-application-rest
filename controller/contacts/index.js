@@ -1,5 +1,7 @@
 const {
   listContacts,
+  paginateListContacts,
+  paginateListFavoriteContacts,
   getContactById,
   addContact,
   updateContact,
@@ -9,6 +11,15 @@ const {
 
 const getContactController = async (req, res, next) => {
   try {
+    const { page, limit, favorite } = req.query
+    if (page && limit && favorite) {
+      const { docs } = await paginateListFavoriteContacts(page, limit, favorite)
+      return res.status(200).json({ result: docs })
+    }
+    if (page && limit) {
+      const { docs } = await paginateListContacts(page, limit)
+      return res.status(200).json({ result: docs })
+    }
     const result = await listContacts()
     return res.status(200).json({ result })
   } catch (error) {
@@ -20,6 +31,7 @@ const getContactByIdController = async (req, res, next) => {
   try {
     const { contactId } = req.params
     const result = await getContactById(contactId)
+    if (!result) return res.status(404).json({ result: 'not found' })
     return res.status(200).json({ result })
   } catch (error) {
     next()
