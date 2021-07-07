@@ -1,13 +1,17 @@
 const {
   addUser,
   getUserByEmail,
-  getUserById,
-  updateSubscription
+  updateSubscription,
+  updateUserAvatar
 } = require('../../services/users')
+
 const {
   login,
   logout
 } = require('../../services/authService')
+
+const { imgResizer } = require('../../helpers/imageResizer')
+const { imgSaver } = require('../../helpers/imageSaver')
 
 const registrationUserController = async (req, res, next) => {
   const { email, password } = req.body
@@ -50,10 +54,8 @@ const logoutUserController = async (req, res, next) => {
 
 const getCurrentUserController = async (req, res, next) => {
   try {
-    const currentUser = await getUserById(req.user.id)
-
-    if (currentUser) {
-      const { email, subscription } = currentUser
+    if (req.user) {
+      const { email, subscription } = req.user
       return res.status(200).json({ email, subscription })
     }
   } catch (error) {
@@ -63,11 +65,25 @@ const getCurrentUserController = async (req, res, next) => {
 
 const changeCurrentUserSubscription = async (req, res, next) => {
   try {
-    const currentUser = await getUserById(req.user.id)
     const { subscription } = req.body
-    if (currentUser) {
+    if (req.user) {
       const result = await updateSubscription(req.user.id, subscription)
       return res.status(200).json({ message: 'subscription changed', result: result.subscription })
+    }
+  } catch (error) {
+    next()
+  }
+}
+
+const changeCurrentUserAvatar = async (req, res, next) => {
+  try {
+    if (req.file) {
+      const nameOfFile = req.file.filename
+      const pathToImage = req.file.path
+      await imgResizer(pathToImage)
+      const savePathUrl = await imgSaver(nameOfFile)
+      const { avatarURL } = await updateUserAvatar(req.user.id, savePathUrl)
+      return res.status(200).json({ avatarURL })
     }
   } catch (error) {
     next()
@@ -79,5 +95,6 @@ module.exports = {
   loginUserController,
   logoutUserController,
   getCurrentUserController,
-  changeCurrentUserSubscription
+  changeCurrentUserSubscription,
+  changeCurrentUserAvatar
 }
