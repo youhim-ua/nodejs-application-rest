@@ -1,6 +1,8 @@
 const { User } = require('../../model/users')
 
-const addUser = async ({ email, password }) => await User.create({ email, password })
+const addUser = async ({ email, password }) => {
+  return await User.create({ email, password })
+}
 
 const getUserByEmail = async (email) => await User.findOne({ email })
 
@@ -13,10 +15,14 @@ const updateToken = async (id, token) => {
 const updateSubscription = async (id, subscription) =>
   await User.findByIdAndUpdate(id, { $set: { subscription } }, { new: true })
 
+const updateUserAvatar = async (id, avatar) =>
+  await User.findByIdAndUpdate(id, { $set: { avatarURL: avatar } }, { new: true })
+
 module.exports = {
   addUser,
   getUserByEmail,
   getUserById,
   updateToken,
-  updateSubscription
+  updateSubscription,
+  updateUserAvatar
 }
