@@ -1,14 +1,19 @@
 const {
   addUser,
   getUserByEmail,
+  getUserByVerifyToken,
   updateSubscription,
-  updateUserAvatar
+  updateUserAvatar,
+  updateVerifyField,
+  updateVerifyTokenField
 } = require('../../services/users')
 
 const {
   login,
   logout
 } = require('../../services/authService')
+
+const { sendVerifyMail } = require('../../services/verifyMailService')
 
 const { imgResizer } = require('../../helpers/imageResizer')
 const { imgSaver } = require('../../helpers/imageSaver')
@@ -23,6 +28,8 @@ const registrationUserController = async (req, res, next) => {
   }
   try {
     const user = await addUser({ email, password })
+    const { verifyToken } = user
+    sendVerifyMail(email, verifyToken)
     return res.status(201).json({ user })
   } catch (error) {
     next()
@@ -32,12 +39,50 @@ const registrationUserController = async (req, res, next) => {
 const loginUserController = async (req, res, next) => {
   try {
     const token = await login(req.body)
+    const { verify } = await getUserByEmail(req.body.email)
+
+    if (!verify) {
+      return res.status(401).json({ message: 'Login failure! You are not authorize email.' })
+    }
 
     if (!token) {
-      res.status(401).json({ message: 'Email or password is wrong' })
+      return res.status(401).json({ message: 'Email or password is wrong' })
     }
     const { email, subscription } = await getUserByEmail(req.body.email)
     return res.status(200).json({ token, user: { email, subscription } })
+  } catch (error) {
+    next()
+  }
+}
+
+const verificationUserController = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params
+    const userWithVerifyToken = await getUserByVerifyToken(verificationToken)
+
+    if (userWithVerifyToken) {
+      const { id } = userWithVerifyToken
+      await updateVerifyField(id)
+      await updateVerifyTokenField(id)
+
+      return res.status(200).json({ message: 'Verification successful' })
+    }
+    return res.status(404).json({ message: 'User not found' })
+  } catch (error) {
+    next()
+  }
+}
+
+const resendNewVerifyLetterController = async (req, res, next) => {
+  try {
+    const { email } = req.body
+    const { verify, verifyToken } = await getUserByEmail(email)
+
+    if (!verify) {
+      sendVerifyMail(email, verifyToken)
+      return res.status(200).json({ message: 'Verification email sent' })
+    }
+    return res.status(400).json({ message: 'Verification has already been passed' })
   } catch (error) {
     next()
   }
@@ -93,6 +138,8 @@ const changeCurrentUserAvatar = async (req, res, next) => {
 module.exports = {
   registrationUserController,
   loginUserController,
+  verificationUserController,
+  resendNewVerifyLetterController,
   logoutUserController,
   getCurrentUserController,
   changeCurrentUserSubscription,
