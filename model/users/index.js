@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const { Schema } = mongoose
 const bcrypt = require('bcryptjs')
 const gravatar = require('gravatar')
+const { v4: uuidv4 } = require('uuid')
 
 const userSchema = new Schema(
   {
@@ -28,7 +29,16 @@ const userSchema = new Schema(
       default: function () {
         return gravatar.url(this.email, { s: '250' }, true)
       },
-    }
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verifyToken: {
+      type: String,
+      required: [true, 'Verify token is required'],
+      default: uuidv4()
+    },
   },
   { versionKey: false, timestamps: true }
 )
